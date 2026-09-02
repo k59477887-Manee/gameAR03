@@ -2047,12 +2047,12 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
       const cW = gameCanvas.width || 1280;
       const cH = gameCanvas.height || 720;
 
-      // Safe Coordinates: Upper & Mid zones, never overlapping bottom player positions
+      // Safe Coordinates: Upper & Mid zones, nicely framing center Boss Slime King
       const quadrantSlots = [
-        { x: cW * 0.18, y: cH * 0.38, startX: cW * 0.5, startY: cH * 0.20 }, // Upper Left
-        { x: cW * 0.82, y: cH * 0.38, startX: cW * 0.5, startY: cH * 0.20 }, // Upper Right
-        { x: cW * 0.24, y: cH * 0.58, startX: cW * 0.5, startY: cH * 0.20 }, // Lower Left
-        { x: cW * 0.76, y: cH * 0.58, startX: cW * 0.5, startY: cH * 0.20 }  // Lower Right
+        { x: cW * 0.18, y: cH * 0.38, startX: cW * 0.5, startY: cH * 0.44 }, // Upper Left
+        { x: cW * 0.82, y: cH * 0.38, startX: cW * 0.5, startY: cH * 0.44 }, // Upper Right
+        { x: cW * 0.22, y: cH * 0.62, startX: cW * 0.5, startY: cH * 0.44 }, // Lower Left
+        { x: cW * 0.78, y: cH * 0.62, startX: cW * 0.5, startY: cH * 0.44 }  // Lower Right
       ];
 
       const shuffledOptions = [...activeQuestion.options].sort(() => 0.5 - Math.random());
@@ -2169,7 +2169,7 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
       speakThai('เยี่ยมมาก!');
 
       const targetBossX = gameCanvas.width * 0.5;
-      const targetBossY = gameCanvas.height * 0.22;
+      const targetBossY = gameCanvas.height * 0.44;
 
       spawnProjectile(player.x, player.y, targetBossX, targetBossY, player);
       spawnFloatingText(player.x, player.y - 40, `+100 (${player.customName})`, '#fbbf24', 32);
@@ -2744,7 +2744,7 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
       bossHpText.innerText = `${Math.round(displayBossHp)} / ${MAX_BOSS_HP}`;
 
       if (currentState === GameState.PLAYING || currentState === GameState.CORRECT_EFFECT || currentState === GameState.BOSS_DEFEATED || currentState === GameState.CAMERA_SETUP) {
-        renderSlimeKing(w * 0.5, h * 0.22, w, h);
+        renderSlimeKing(w * 0.5, h * 0.44, w, h);
       }
 
       if (currentState === GameState.PLAYING || currentState === GameState.CORRECT_EFFECT) {
