@@ -342,16 +342,20 @@
       </div>
 
       <!-- ============================================================== -->
+      <!-- ============================================================== -->
       <!-- SCREEN: PLAYER COUNT SELECTION -->
       <!-- ============================================================== -->
-      <div id="screenPlayerSelect" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-between p-6 pointer-events-auto bg-slate-950/90 backdrop-blur-md transition-all duration-300">
+      <div id="screenPlayerSelect" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-between p-6 pointer-events-auto bg-slate-950/75 backdrop-blur-sm transition-all duration-300 overflow-hidden">
         
-        <div class="w-full flex justify-between items-center max-w-5xl">
-          <button id="btnBackToHome" class="bright-card hover:bg-white/20 text-white font-normal text-sm px-4 py-2 rounded-xl flex items-center gap-2 transition active:scale-95 shadow">
+        <!-- Background Loop Video (Opacity 35%) -->
+        <video src="image/BG-Slime-1.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none opacity-35 z-0"></video>
+
+        <div class="relative z-10 w-full flex justify-between items-center max-w-5xl">
+          <button id="btnBackToHome" class="bright-card hover:bg-white/20 text-white font-normal text-sm px-4 py-2 rounded-xl flex items-center gap-2 transition active:scale-95 shadow backdrop-blur-md">
             <span>⬅️</span>
             <span>ย้อนกลับหน้าแรก</span>
           </button>
-          <h2 class="font-semibold text-2xl md:text-3xl text-amber-300 flex items-center gap-2.5">
+          <h2 class="font-semibold text-2xl md:text-3xl text-amber-300 flex items-center gap-2.5 drop-shadow">
             <span>👥</span>
             <span>เลือกจำนวนผู้กล้า (1–3 คน)</span>
           </h2>
@@ -359,10 +363,10 @@
         </div>
 
         <!-- Player Count Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl w-full my-auto">
+        <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl w-full my-auto">
           
           <!-- Option 1 Player -->
-          <div class="player-select-card group relative bright-panel rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer border-2 border-blue-400/50 hover:border-blue-400 hover:bg-blue-950/50 hover:scale-105 transition-all duration-300 shadow-lg" data-players="1">
+          <div class="player-select-card group relative bright-panel rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer border-2 border-blue-400/50 hover:border-blue-400 hover:bg-blue-950/50 hover:scale-105 transition-all duration-300 shadow-lg backdrop-blur-md" data-players="1">
             <div class="absolute -top-3 bg-blue-600 text-white font-medium text-xs px-3 py-0.5 rounded-full shadow flex items-center gap-1">
               <span>🛡️</span>
               <span>โซโล่ผู้กล้าเดี่ยว</span>
@@ -384,7 +388,7 @@
           </div>
 
           <!-- Option 2 Players -->
-          <div class="player-select-card group relative bright-panel rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer border-2 border-emerald-400/50 hover:border-emerald-400 hover:bg-emerald-950/50 hover:scale-105 transition-all duration-300 shadow-lg" data-players="2">
+          <div class="player-select-card group relative bright-panel rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer border-2 border-emerald-400/50 hover:border-emerald-400 hover:bg-emerald-950/50 hover:scale-105 transition-all duration-300 shadow-lg backdrop-blur-md" data-players="2">
             <div class="absolute -top-3 bg-emerald-600 text-white font-medium text-xs px-3 py-0.5 rounded-full shadow flex items-center gap-1">
               <span>⚡</span>
               <span>ดูโอ้ประลองความเร็ว</span>
@@ -412,7 +416,7 @@
           </div>
 
           <!-- Option 3 Players -->
-          <div class="player-select-card group relative bright-panel rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer border-2 border-purple-400/50 hover:border-purple-400 hover:bg-purple-950/50 hover:scale-105 transition-all duration-300 shadow-lg" data-players="3">
+          <div class="player-select-card group relative bright-panel rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer border-2 border-purple-400/50 hover:border-purple-400 hover:bg-purple-950/50 hover:scale-105 transition-all duration-300 shadow-lg backdrop-blur-md" data-players="3">
             <div class="absolute -top-3 bg-purple-600 text-white font-medium text-xs px-3 py-0.5 rounded-full shadow flex items-center gap-1">
               <span>🔥</span>
               <span>ทีมทรีโอ้ 3 ประสาน</span>
@@ -445,7 +449,7 @@
 
         </div>
 
-        <div class="text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
+        <div class="relative z-10 text-center text-xs text-slate-300 flex items-center justify-center gap-1.5">
           <span>💡</span>
           <span>คลิกเลือกจำนวนผู้เล่นเพื่อกรอกชื่อและตั้งค่ากล้อง</span>
         </div>
@@ -454,14 +458,17 @@
       <!-- ============================================================== -->
       <!-- SCREEN: PLAYER NAMES & CLASS/ROOM INPUT -->
       <!-- ============================================================== -->
-      <div id="screenPlayerNames" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-between p-6 pointer-events-auto bg-slate-950/90 backdrop-blur-md transition-all duration-300">
+      <div id="screenPlayerNames" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-between p-6 pointer-events-auto bg-slate-950/75 backdrop-blur-sm transition-all duration-300 overflow-hidden">
         
-        <div class="w-full flex justify-between items-center max-w-5xl">
-          <button id="btnBackToCountSelect" class="bright-card hover:bg-white/20 text-white font-normal text-sm px-4 py-2 rounded-xl flex items-center gap-2 transition active:scale-95 shadow">
+        <!-- Background Loop Video (Opacity 35%) -->
+        <video src="image/BG-Slime-1.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none opacity-35 z-0"></video>
+
+        <div class="relative z-10 w-full flex justify-between items-center max-w-5xl">
+          <button id="btnBackToCountSelect" class="bright-card hover:bg-white/20 text-white font-normal text-sm px-4 py-2 rounded-xl flex items-center gap-2 transition active:scale-95 shadow backdrop-blur-md">
             <span>⬅️</span>
             <span>เปลี่ยนจำนวนผู้เล่น</span>
           </button>
-          <h2 class="font-semibold text-2xl md:text-3xl text-amber-300 flex items-center gap-2.5">
+          <h2 class="font-semibold text-2xl md:text-3xl text-amber-300 flex items-center gap-2.5 drop-shadow">
             <span>📝</span>
             <span>กรอกชื่อผู้กล้าเพื่อบันทึกคะแนน</span>
           </h2>
@@ -469,18 +476,18 @@
         </div>
 
         <!-- Name Inputs Container -->
-        <div id="playerInputsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl w-full my-auto">
+        <div id="playerInputsGrid" class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl w-full my-auto">
           <!-- Dynamically Injected Player Input Cards -->
         </div>
 
         <!-- Confirm Names & Proceed Button -->
-        <div class="flex flex-col items-center gap-2">
+        <div class="relative z-10 flex flex-col items-center gap-2">
           <button id="btnConfirmNames" class="px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-semibold text-xl rounded-2xl shadow-lg active:scale-95 transition flex items-center gap-3">
             <span class="text-2xl">✅</span>
             <span>ยืนยันชื่อ & ไปตั้งค่ากล้อง</span>
             <span class="text-lg">➡️</span>
           </button>
-          <div class="text-xs text-slate-400 flex items-center gap-1.5">
+          <div class="text-xs text-slate-300 flex items-center gap-1.5">
             <span>⭐</span>
             <span>คะแนนจะถูกบันทึกเพื่อจัดอันดับระดับโรงเรียน</span>
           </div>
