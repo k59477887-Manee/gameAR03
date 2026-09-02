@@ -159,12 +159,19 @@
             </div>
           </div>
 
-          <!-- Right: Mission Counter & Quick Controls -->
+          <!-- Right: Mission Counter, Font Size, & Quick Controls -->
           <div class="flex items-center gap-2">
             <div class="bright-card px-3.5 py-1.5 rounded-xl flex items-center gap-2 border-purple-400/40 shadow">
               <span>📜</span>
               <span class="text-xs md:text-sm text-slate-200 font-normal">ภารกิจ:</span>
               <span id="missionProgressText" class="font-semibold text-sm md:text-base text-amber-300">1 / 10</span>
+            </div>
+
+            <!-- Font Size Adjuster Control (A- / A / A+) -->
+            <div class="bright-card px-1.5 py-1 rounded-xl flex items-center gap-0.5 border-amber-400/40 shadow" title="ปรับขนาดตัวอักษร (A- ลด / A ปกติ / A+ ขยาย)">
+              <button id="btnFontDecrease" class="px-2 py-0.5 text-xs text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition font-medium" title="ลดขนาดตัวอักษร">A-</button>
+              <button id="btnFontReset" class="px-2 py-0.5 text-xs text-amber-300 hover:text-yellow-200 hover:bg-white/10 rounded-lg transition font-bold" title="ขนาดปกติ 100% (กดเพื่อคืนค่าเดิม)">A</button>
+              <button id="btnFontIncrease" class="px-2 py-0.5 text-xs text-amber-300 hover:text-yellow-200 hover:bg-white/10 rounded-lg transition font-bold" title="ขยายตัวอักษรใหญ่">A+</button>
             </div>
             
             <button id="btnSoundToggle" class="w-10 h-10 rounded-xl bright-card flex items-center justify-center hover:bg-white/20 active:scale-95 transition text-xl text-amber-300 border border-amber-400/40 shadow" title="เปิด/ปิดเสียง">
@@ -271,12 +278,22 @@
             </span>
           </div>
 
-          <!-- Protected Admin Dashboard Button -->
-          <button id="btnOpenAdminDashboard" class="bright-card px-4 py-2 rounded-xl text-xs font-medium text-purple-300 hover:text-white hover:bg-purple-600/40 border border-purple-400/50 flex items-center gap-2 transition active:scale-95 shadow backdrop-blur-md">
-            <span class="text-sm">🔐</span>
-            <span>แผงควบคุมแอดมิน (Admin)</span>
-            <span class="text-xs text-purple-300">🔑</span>
-          </button>
+          <div class="flex items-center gap-2.5">
+            <!-- Home Font Size Adjuster Control -->
+            <div class="bright-card px-2 py-1 rounded-xl flex items-center gap-1 border-amber-400/40 shadow backdrop-blur-md" title="ปรับขนาดตัวอักษร (A- / A / A+)">
+              <span class="text-xs text-slate-300 mr-1 hidden sm:inline">🔍 ขนาดอักษร:</span>
+              <button id="btnHomeFontDecrease" class="px-2 py-0.5 text-xs text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition font-medium" title="ลดขนาดตัวอักษร">A-</button>
+              <button id="btnHomeFontReset" class="px-2.5 py-0.5 text-xs text-amber-300 hover:text-yellow-200 hover:bg-white/10 rounded-lg transition font-bold" title="ขนาดปกติ 100% (กดเพื่อคืนค่าเดิม)">A</button>
+              <button id="btnHomeFontIncrease" class="px-2 py-0.5 text-xs text-amber-300 hover:text-yellow-200 hover:bg-white/10 rounded-lg transition font-bold" title="ขยายตัวอักษรใหญ่">A+</button>
+            </div>
+
+            <!-- Protected Admin Dashboard Button -->
+            <button id="btnOpenAdminDashboard" class="bright-card px-4 py-2 rounded-xl text-xs font-medium text-purple-300 hover:text-white hover:bg-purple-600/40 border border-purple-400/50 flex items-center gap-2 transition active:scale-95 shadow backdrop-blur-md">
+              <span class="text-sm">🔐</span>
+              <span>แผงควบคุมแอดมิน (Admin)</span>
+              <span class="text-xs text-purple-300">🔑</span>
+            </button>
+          </div>
         </div>
 
         <!-- Center: Game Title & Cheerful Banner -->
@@ -3063,18 +3080,21 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
         ctx.strokeStyle = isQuestionReady ? crystal.stroke : '#fbbf24';
         ctx.lineWidth = isQuestionReady ? 2.5 : 3.0;
 
-        const w = crystal.width;
-        const h = crystal.height;
+        const fontScaleFactor = typeof globalFontScale !== 'undefined' ? globalFontScale : 1.0;
+        const crystalFontSize = Math.round(15 * fontScaleFactor);
+        const w = Math.round(crystal.width * (1 + (fontScaleFactor - 1) * 0.35));
+        const h = Math.round(crystal.height * (1 + (fontScaleFactor - 1) * 0.35));
         roundRect(ctx, -w / 2, -h / 2, w, h, 16, true, true);
 
         // Emoji
-        ctx.font = '34px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+        const emojiSize = Math.round(34 * Math.min(1.2, fontScaleFactor));
+        ctx.font = `${emojiSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(crystal.emoji, 0, -h * 0.18);
 
         // Thai Device Name (Prompt Medium)
-        ctx.font = '500 15px "Prompt", sans-serif';
+        ctx.font = `600 ${crystalFontSize}px "Prompt", sans-serif`;
         ctx.fillStyle = '#ffffff';
         ctx.fillText(crystal.text, 0, h * 0.25);
 
@@ -3716,6 +3736,101 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);`;
       SoundEngine.click();
       returnToHomeScreen();
     });
+
+    /**
+     * =========================================================================
+     * RESPONSIVE FONT SCALE CONTROLLER (A- / A / A+)
+     * =========================================================================
+     */
+    let globalFontScale = parseFloat(localStorage.getItem('slime_font_scale') || '1.0');
+
+    function setFontScale(scale, notify = false) {
+      // Clamp between 0.85 (Small) and 1.35 (Extra Large)
+      globalFontScale = Math.max(0.85, Math.min(1.35, Math.round(scale * 100) / 100));
+      localStorage.setItem('slime_font_scale', globalFontScale);
+      document.documentElement.style.setProperty('--font-scale', globalFontScale);
+
+      // Dynamically Adjust Question Box Typography
+      const qText = document.getElementById('questionText');
+      if (qText) {
+        if (globalFontScale >= 1.25) {
+          qText.className = 'font-medium text-xl md:text-3xl text-white drop-shadow leading-relaxed';
+        } else if (globalFontScale >= 1.1) {
+          qText.className = 'font-medium text-lg md:text-2xl text-white drop-shadow leading-relaxed';
+        } else if (globalFontScale <= 0.9) {
+          qText.className = 'font-medium text-sm md:text-lg text-white drop-shadow leading-relaxed';
+        } else {
+          qText.className = 'font-medium text-base md:text-xl text-white drop-shadow leading-relaxed';
+        }
+      }
+
+      // Update Button visual active states
+      updateFontScaleUI();
+
+      if (notify) {
+        const pct = Math.round(globalFontScale * 100);
+        const label = pct === 100 ? 'ขนาดปกติ (100%)' : pct > 100 ? `ขยายใหญ่ขึ้น (${pct}%)` : `ย่อเล็กลง (${pct}%)`;
+        showFeedbackToast('🔍 ปรับขนาดตัวอักษร', label, 'border-amber-400 bg-slate-900/90 text-amber-300');
+      }
+    }
+
+    function updateFontScaleUI() {
+      const isNormal = Math.abs(globalFontScale - 1.0) < 0.05;
+      const isLarge = globalFontScale > 1.05;
+      const isSmall = globalFontScale < 0.95;
+
+      ['btnFontReset', 'btnHomeFontReset'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (isNormal) {
+            el.className = 'px-2.5 py-0.5 text-xs font-bold text-slate-950 bg-amber-400 rounded-lg shadow transition';
+          } else {
+            el.className = 'px-2.5 py-0.5 text-xs font-medium text-amber-300 hover:text-yellow-200 hover:bg-white/10 rounded-lg transition';
+          }
+        }
+      });
+
+      ['btnFontIncrease', 'btnHomeFontIncrease'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (isLarge) {
+            el.className = 'px-2 py-0.5 text-xs font-bold text-slate-950 bg-amber-400 rounded-lg shadow transition';
+          } else {
+            el.className = 'px-2 py-0.5 text-xs font-medium text-amber-300 hover:text-yellow-200 hover:bg-white/10 rounded-lg transition';
+          }
+        }
+      });
+
+      ['btnFontDecrease', 'btnHomeFontDecrease'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (isSmall) {
+            el.className = 'px-2 py-0.5 text-xs font-bold text-slate-950 bg-amber-400 rounded-lg shadow transition';
+          } else {
+            el.className = 'px-2 py-0.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition';
+          }
+        }
+      });
+    }
+
+    // Attach Font Buttons Listeners (HUD and Home Screen)
+    ['btnFontDecrease', 'btnHomeFontDecrease'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => { SoundEngine.click(); setFontScale(globalFontScale - 0.15, true); });
+    });
+
+    ['btnFontReset', 'btnHomeFontReset'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => { SoundEngine.click(); setFontScale(1.0, true); });
+    });
+
+    ['btnFontIncrease', 'btnHomeFontIncrease'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => { SoundEngine.click(); setFontScale(globalFontScale + 0.15, true); });
+    });
+
+    // Initialize font scale on start
+    setFontScale(globalFontScale, false);
 
     /**
      * =========================================================================
