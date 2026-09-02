@@ -13,6 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <!-- Supabase JS Client CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <script>
     tailwind.config = {
@@ -2523,7 +2525,18 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
     }
 
     async function adminDeleteRecord(id, name) {
-      if (!confirm(`ยืนยันการลบประวัติของ "${name}" หรือไม่?`)) return;
+      const confirmResult = await Swal.fire({
+        title: 'ยืนยันการลบข้อมูล?',
+        text: `คุณต้องการลบประวัติคะแนนของ "${name}" หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: '🗑️ ยืนยันลบ',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+      });
+      if (!confirmResult.isConfirmed) return;
 
       if (supabaseClient && id) {
         try {
@@ -2539,11 +2552,30 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
         localStorage.setItem('slime_local_scores', JSON.stringify(localHistory));
       } catch (e) {}
 
+      Swal.fire({
+        title: 'ลบสำเร็จ!',
+        text: `ลบประวัติของ "${name}" เรียบร้อยแล้ว`,
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
       loadAdminData();
     }
 
     async function adminClearAllRecords() {
-      if (!confirm('⚠️ คำเตือน: ยืนยันการล้างประวัติการเล่นและคะแนนทั้งหมดหรือไม่?\n(การกระทำนี้ไม่สามารถย้อนกลับได้)')) return;
+      const confirmResult = await Swal.fire({
+        title: '⚠️ คำเตือนสำคัญ!',
+        html: 'ยืนยันล้างประวัติการเล่นและคะแนนทั้งหมดหรือไม่?<br><span class="text-rose-500 font-semibold text-xs">(การกระทำนี้ไม่สามารถย้อนกลับได้)</span>',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: '💥 ล้างข้อมูลทั้งหมด',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+      });
+      if (!confirmResult.isConfirmed) return;
 
       if (supabaseClient) {
         try {
@@ -2557,13 +2589,25 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
         localStorage.removeItem('slime_local_scores');
       } catch (e) {}
 
-      alert('✅ ล้างข้อมูลประวัติคะแนนทั้งหมดเรียบร้อยแล้ว!');
+      Swal.fire({
+        title: 'ล้างข้อมูลสำเร็จ!',
+        text: 'ล้างข้อมูลประวัติคะแนนทั้งหมดเรียบร้อยแล้ว',
+        icon: 'success',
+        timer: 1800,
+        showConfirmButton: false
+      });
       loadAdminData();
     }
 
     function adminExportToCSV() {
       if (allAdminRecords.length === 0) {
-        alert('ไม่มีข้อมูลสำหรับส่งออก');
+        Swal.fire({
+          title: 'ไม่มีข้อมูล',
+          text: 'ยังไม่มีข้อมูลคะแนนสำหรับส่งออกเป็นไฟล์ CSV',
+          icon: 'info',
+          confirmButtonColor: '#7c3aed',
+          confirmButtonText: 'ตกลง'
+        });
         return;
       }
 
@@ -3515,10 +3559,22 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
         localStorage.setItem('slime_supabase_url', u);
         localStorage.setItem('slime_supabase_key', k);
         initSupabase();
-        alert('✅ บันทึกการเชื่อมต่อ Supabase เรียบร้อยแล้ว!');
+        Swal.fire({
+          title: 'บันทึกสำเร็จ!',
+          text: 'บันทึกการเชื่อมต่อ Supabase เรียบร้อยแล้ว',
+          icon: 'success',
+          confirmButtonColor: '#059669',
+          confirmButtonText: 'ตกลง'
+        });
         loadAdminData();
       } else {
-        alert('กรุณากรอกทั้ง Project URL และ Anon Key ให้ครบถ้วนครับ');
+        Swal.fire({
+          title: 'ข้อมูลไม่ครบถ้วน',
+          text: 'กรุณากรอกทั้ง Project URL และ Anon Key ให้ครบถ้วนครับ',
+          icon: 'warning',
+          confirmButtonColor: '#7c3aed',
+          confirmButtonText: 'ตกลง'
+        });
       }
     });
 
@@ -3527,19 +3583,43 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
       const u = document.getElementById('cfgSupabaseUrl').value.trim();
       const k = document.getElementById('cfgSupabaseKey').value.trim();
       if (!u || !k) {
-        alert('กรุณากรอก Project URL และ Anon Key ก่อนกดทดสอบครับ');
+        Swal.fire({
+          title: 'ข้อมูลไม่ครบถ้วน',
+          text: 'กรุณากรอก Project URL และ Anon Key ก่อนกดทดสอบครับ',
+          icon: 'warning',
+          confirmButtonColor: '#7c3aed',
+          confirmButtonText: 'ตกลง'
+        });
         return;
       }
       try {
         const testClient = window.supabase.createClient(u, k);
         const { error } = await testClient.from('game_scores').select('count', { count: 'exact', head: true });
         if (error) {
-          alert(`⚠️ เชื่อมต่อได้แต่ตารางอาจยังไม่ถูกสร้าง: ${error.message}`);
+          Swal.fire({
+            title: 'แจ้งเตือนโครงสร้างตาราง',
+            text: `เชื่อมต่อได้แต่ตารางอาจยังไม่ถูกสร้าง: ${error.message}`,
+            icon: 'warning',
+            confirmButtonColor: '#f59e0b',
+            confirmButtonText: 'เข้าใจแล้ว'
+          });
         } else {
-          alert('🎉 เชื่อมต่อ Supabase สำเร็จสมบูรณ์ 100%!');
+          Swal.fire({
+            title: 'เชื่อมต่อสำเร็จสมบูรณ์!',
+            text: 'เชื่อมต่อฐานข้อมูล Supabase สำเร็จ 100% พร้อมใช้งาน',
+            icon: 'success',
+            confirmButtonColor: '#059669',
+            confirmButtonText: 'ยอดเยี่ยม'
+          });
         }
       } catch (err) {
-        alert(`❌ เชื่อมต่อไม่สำเร็จ: ${err.message}`);
+        Swal.fire({
+          title: 'เชื่อมต่อไม่สำเร็จ',
+          text: `เกิดข้อผิดพลาด: ${err.message}`,
+          icon: 'error',
+          confirmButtonColor: '#e11d48',
+          confirmButtonText: 'ลองอีกครั้ง'
+        });
       }
     });
 
@@ -3548,7 +3628,7 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
       const sqlCode = `CREATE TABLE IF NOT EXISTS game_scores (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   player_name TEXT NOT NULL,
-  player_class TEXT DEFAULT 'ห้อง 1',
+  player_class TEXT DEFAULT 'ป.4/1',
   role TEXT,
   score INT NOT NULL,
   player_mode TEXT,
@@ -3563,7 +3643,13 @@ CREATE POLICY "Allow public update" ON game_scores FOR UPDATE USING (true);
 CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);`;
 
       navigator.clipboard.writeText(sqlCode).then(() => {
-        alert('📋 คัดลอกคำสั่ง SQL แล้ว! นำไปวางใน Supabase -> SQL Editor ได้เลยครับ');
+        Swal.fire({
+          title: 'คัดลอกคำสั่ง SQL แล้ว!',
+          text: 'นำไปวางในหน้า Supabase -> SQL Editor แล้วกด Run ได้ทันทีครับ',
+          icon: 'success',
+          confirmButtonColor: '#7c3aed',
+          confirmButtonText: 'ตกลง'
+        });
       });
     });
 
@@ -3582,9 +3668,21 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);`;
 
     document.getElementById('btnExitGame').addEventListener('click', () => {
       SoundEngine.click();
-      if (confirm('ต้องการกลับสู่หน้าหลักหรือไม่?')) {
-        returnToHomeScreen();
-      }
+      Swal.fire({
+        title: 'ออกจากเกม?',
+        text: 'คุณต้องการออกจากสนามต่อสู้เพื่อกลับสู่หน้าหลักหรือไม่?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: '🏠 ใช่, กลับหน้าหลัก',
+        cancelButtonText: 'เล่นต่อ',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          returnToHomeScreen();
+        }
+      });
     });
 
     document.getElementById('btnHowToPlay').addEventListener('click', () => {
