@@ -2864,23 +2864,30 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
       }
 
       bossAuraPhase += 0.04;
-      const idleBounce = Math.sin(bossAuraPhase) * 6;
+      const idleBounce = Math.sin(bossAuraPhase) * 5;
       bossSquashX += (1 - bossSquashX) * 0.1;
       bossSquashY += (1 - bossSquashY) * 0.1;
 
       const bossX = centerX + offsetX;
       const bossY = centerY + offsetY + idleBounce;
-      const radiusX = 110 * bossSquashX;
-      const radiusY = 95 * bossSquashY;
+
+      // Maintain 100% true natural proportion of Slime.png
+      let baseW = 230;
+      let baseH = 230;
+      if (slimeBossImg.complete && slimeBossImg.naturalWidth > 0 && slimeBossImg.naturalHeight > 0) {
+        const natAspect = slimeBossImg.naturalWidth / slimeBossImg.naturalHeight;
+        baseH = 230;
+        baseW = baseH * natAspect;
+      }
 
       // Soft purple aura
-      const auraGrad = ctx.createRadialGradient(bossX, bossY, 30, bossX, bossY, radiusX * 1.35);
+      const auraGrad = ctx.createRadialGradient(bossX, bossY, 30, bossX, bossY, 130);
       auraGrad.addColorStop(0, 'rgba(192, 132, 252, 0.45)');
       auraGrad.addColorStop(0.7, 'rgba(168, 85, 247, 0.18)');
       auraGrad.addColorStop(1, 'rgba(192, 132, 252, 0)');
       ctx.fillStyle = auraGrad;
       ctx.beginPath();
-      ctx.arc(bossX, bossY, radiusX * 1.35, 0, Math.PI * 2);
+      ctx.arc(bossX, bossY, 130, 0, Math.PI * 2);
       ctx.fill();
 
       if (slimeBossImg.complete && slimeBossImg.naturalWidth !== 0) {
@@ -2899,9 +2906,7 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
           ctx.filter = 'drop-shadow(0 10px 25px rgba(0, 0, 0, 0.45))';
         }
 
-        const imgW = radiusX * 2.1;
-        const imgH = radiusY * 2.1;
-        ctx.drawImage(slimeBossImg, -imgW / 2, -imgH / 2, imgW, imgH);
+        ctx.drawImage(slimeBossImg, -baseW / 2, -baseH / 2, baseW, baseH);
         ctx.restore();
       } else {
         // Slime Body Fallback (Cute Glossy Purple)
