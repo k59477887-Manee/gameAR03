@@ -255,19 +255,22 @@
       <!-- ============================================================== -->
       <!-- SCREEN: HOME / TITLE SCREEN -->
       <!-- ============================================================== -->
-      <div id="screenHome" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-between p-4 md:p-6 pointer-events-auto bg-slate-950/80 backdrop-blur-md transition-all duration-500">
+      <div id="screenHome" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-between p-4 md:p-6 pointer-events-auto bg-slate-950/70 backdrop-blur-sm transition-all duration-500 overflow-hidden">
         
+        <!-- Background Loop Video (Opacity 35%) -->
+        <video src="image/BG-Slime-1.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none opacity-35 z-0"></video>
+
         <!-- Top Settings & Admin Bar -->
-        <div class="w-full flex justify-between items-center max-w-5xl">
+        <div class="relative z-10 w-full flex justify-between items-center max-w-5xl">
           <div class="flex items-center gap-2">
-            <span class="text-xs text-amber-300 bg-amber-950/60 px-3 py-1.5 rounded-full border border-amber-400/30 flex items-center gap-1.5 shadow-sm">
+            <span class="text-xs text-amber-300 bg-amber-950/70 px-3 py-1.5 rounded-full border border-amber-400/40 flex items-center gap-1.5 shadow-md backdrop-blur-md">
               <span>✨</span>
               <span>เกมการเรียนรู้เทคโนโลยี AR</span>
             </span>
           </div>
 
           <!-- Protected Admin Dashboard Button -->
-          <button id="btnOpenAdminDashboard" class="bright-card px-4 py-2 rounded-xl text-xs font-medium text-purple-300 hover:text-white hover:bg-purple-600/40 border border-purple-400/50 flex items-center gap-2 transition active:scale-95 shadow">
+          <button id="btnOpenAdminDashboard" class="bright-card px-4 py-2 rounded-xl text-xs font-medium text-purple-300 hover:text-white hover:bg-purple-600/40 border border-purple-400/50 flex items-center gap-2 transition active:scale-95 shadow backdrop-blur-md">
             <span class="text-sm">🔐</span>
             <span>แผงควบคุมแอดมิน (Admin)</span>
             <span class="text-xs text-purple-300">🔑</span>
@@ -275,7 +278,7 @@
         </div>
 
         <!-- Center: Game Title & Cheerful Banner -->
-        <div class="flex flex-col items-center text-center my-auto">
+        <div class="relative z-10 flex flex-col items-center text-center my-auto">
           <!-- Animated Boss Slime Image -->
           <div class="relative mb-2 flex justify-center items-center">
             <img src="image/Slime.png" alt="ราชาสไลม์" class="w-32 h-32 md:w-44 md:h-44 object-contain animate-bounceCustom filter drop-shadow-2xl">
@@ -307,12 +310,12 @@
               </span>
             </button>
             
-            <button id="btnOpenLeaderboard" class="px-5 py-3.5 bright-card hover:bg-amber-400/20 text-amber-300 font-medium text-base md:text-lg rounded-2xl border border-amber-400/50 hover:scale-105 active:scale-95 transition flex items-center gap-2.5 shadow">
+            <button id="btnOpenLeaderboard" class="px-5 py-3.5 bright-card hover:bg-amber-400/20 text-amber-300 font-medium text-base md:text-lg rounded-2xl border border-amber-400/50 hover:scale-105 active:scale-95 transition flex items-center gap-2.5 shadow backdrop-blur-md">
               <span class="text-xl">🏆</span>
               <span>อันดับทั้งโรงเรียน</span>
             </button>
 
-            <button id="btnHowToPlay" class="px-5 py-3.5 bright-card hover:bg-white/10 text-slate-200 font-medium text-base md:text-lg rounded-2xl border border-white/20 hover:scale-105 active:scale-95 transition flex items-center gap-2.5 shadow">
+            <button id="btnHowToPlay" class="px-5 py-3.5 bright-card hover:bg-white/10 text-slate-200 font-medium text-base md:text-lg rounded-2xl border border-white/20 hover:scale-105 active:scale-95 transition flex items-center gap-2.5 shadow backdrop-blur-md">
               <span class="text-xl">📖</span>
               <span>วิธีเล่น</span>
             </button>
@@ -332,7 +335,7 @@
         </div>
 
         <!-- Mandatory User Footer (Copyright & Attribution) -->
-        <footer class="w-full max-w-4xl text-center py-2 text-[11px] md:text-xs text-slate-300 border-t border-slate-700/40 mt-auto flex items-center justify-center gap-1.5">
+        <footer class="relative z-10 w-full max-w-4xl text-center py-2 text-[11px] md:text-xs text-slate-300 border-t border-slate-700/40 mt-auto flex items-center justify-center gap-1.5">
           <span>🛡️</span>
           <span>© 2026 กิตติศักดิ์ บุญเกตุ | โรงเรียนชุมชนเทศบาลวัดมณีสถิตกปิฏฐาราม. All Rights Reserved. • สื่อการเรียนรู้วิทยาการคำนวณ (Computational Thinking)</span>
         </footer>
@@ -546,10 +549,13 @@
       <!-- ============================================================== -->
       <!-- SCREEN: VICTORY & SUMMARY (BOSS DEFEATED) -->
       <!-- ============================================================== -->
-      <div id="screenVictory" class="hidden absolute inset-0 z-40 flex flex-col items-center justify-between p-6 pointer-events-auto bg-slate-950/90 backdrop-blur-md transition-all duration-500">
+      <div id="screenVictory" class="hidden absolute inset-0 z-40 flex flex-col items-center justify-between p-6 pointer-events-auto bg-slate-950/75 backdrop-blur-sm transition-all duration-500 overflow-hidden">
         
+        <!-- Background Loop Video (Opacity 35%) -->
+        <video src="image/BG-Slime-1.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none opacity-35 z-0"></video>
+
         <!-- Victory Banner -->
-        <div class="text-center mt-1 animate-bounce flex flex-col items-center">
+        <div class="relative z-10 text-center mt-1 animate-bounce flex flex-col items-center">
           <div class="relative mb-1">
             <img src="image/Slime.png" alt="ราชาสไลม์" class="w-24 h-24 md:w-28 md:h-28 object-contain opacity-95 filter drop-shadow-lg">
             <span class="absolute -top-2 -right-2 text-3xl">👑</span>
@@ -566,10 +572,10 @@
         </div>
 
         <!-- Leaderboard & Statistics Grid -->
-        <div class="w-full max-w-4xl my-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="relative z-10 w-full max-w-4xl my-auto grid grid-cols-1 md:grid-cols-2 gap-4">
           
           <!-- Match Podium / Rankings -->
-          <div class="bright-panel rounded-2xl p-4 border border-amber-400/40 shadow-xl flex flex-col justify-between">
+          <div class="bright-panel rounded-2xl p-4 border border-amber-400/40 shadow-xl flex flex-col justify-between backdrop-blur-md">
             <h3 class="font-medium text-base md:text-lg text-amber-300 flex items-center gap-2 mb-2.5 border-b border-white/10 pb-2">
               <span>🏅</span>
               <span>สรุปอันดับในรอบนี้</span>
@@ -592,7 +598,7 @@
           </div>
 
           <!-- Battle Stats Summary -->
-          <div class="bright-panel rounded-2xl p-4 border border-purple-400/40 shadow-xl flex flex-col justify-between">
+          <div class="bright-panel rounded-2xl p-4 border border-purple-400/40 shadow-xl flex flex-col justify-between backdrop-blur-md">
             <h3 class="font-medium text-base md:text-lg text-purple-300 flex items-center gap-2 mb-2.5 border-b border-white/10 pb-2">
               <span>📊</span>
               <span>สถิติการต่อสู้</span>
@@ -634,13 +640,13 @@
         </div>
 
         <!-- Victory Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-3 mb-2">
+        <div class="relative z-10 flex flex-col sm:flex-row gap-3 mb-2">
           <button id="btnPlayAgain" class="px-8 py-3 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-yellow-300 hover:to-amber-300 text-slate-950 font-semibold text-lg md:text-xl rounded-2xl shadow-lg active:scale-95 transition flex items-center justify-center gap-2.5">
             <span class="text-xl">🔄</span>
             <span>เล่นใหม่อีกครั้ง</span>
             <span class="text-base">✨</span>
           </button>
-          <button id="btnVictoryHome" class="px-6 py-3 bright-card hover:bg-white/20 text-white font-medium text-base md:text-lg rounded-2xl border border-white/20 active:scale-95 transition flex items-center justify-center gap-2.5 shadow">
+          <button id="btnVictoryHome" class="px-6 py-3 bright-card hover:bg-white/20 text-white font-medium text-base md:text-lg rounded-2xl border border-white/20 active:scale-95 transition flex items-center justify-center gap-2.5 shadow backdrop-blur-md">
             <span class="text-lg">🏠</span>
             <span>กลับหน้าหลัก</span>
           </button>
