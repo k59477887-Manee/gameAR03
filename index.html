@@ -959,11 +959,8 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
       <div id="modalLeaderboard" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md pointer-events-auto font-prompt">
         <div class="bright-panel max-w-2xl w-full rounded-2xl p-5 border-2 border-amber-400/70 shadow-2xl relative flex flex-col max-h-[88vh]">
           
-          <button id="btnCloseLeaderboard" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-rose-600 text-white flex items-center justify-center transition font-bold text-sm" title="ปิดหน้าต่าง">
-            ✕
-          </button>
-
-          <div class="flex items-center justify-between border-b border-white/10 pb-2.5 mb-3">
+          <!-- Modal Header with Side-by-Side Refresh & Close Buttons -->
+          <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
             <div class="flex items-center gap-2.5">
               <span class="text-3xl">🏆</span>
               <div>
@@ -976,10 +973,16 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
               </div>
             </div>
             
-            <button id="btnRefreshLeaderboard" class="bright-card px-3.5 py-1.5 rounded-xl text-xs text-cyan-300 hover:text-white hover:bg-cyan-600/30 flex items-center gap-2 transition border-cyan-400/40 shadow">
-              <span>🔄</span>
-              <span>รีเฟรชข้อมูล</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="btnRefreshLeaderboard" class="bright-card px-3.5 py-1.5 rounded-xl text-xs text-cyan-300 hover:text-white hover:bg-cyan-600/30 flex items-center gap-1.5 transition border-cyan-400/40 shadow active:scale-95">
+                <span>🔄</span>
+                <span>รีเฟรชข้อมูล</span>
+              </button>
+              
+              <button id="btnCloseLeaderboard" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-rose-600 text-white flex items-center justify-center transition font-bold text-sm border border-white/20 active:scale-95 shadow" title="ปิดหน้าต่าง">
+                ✕
+              </button>
+            </div>
           </div>
 
           <!-- Leaderboard Table Container -->
