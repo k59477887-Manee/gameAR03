@@ -15,6 +15,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Google MediaPipe FaceMesh & Camera Utils CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
   
   <script>
     tailwind.config = {
@@ -208,16 +211,16 @@
       <div id="feedbackToast" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-all duration-300 opacity-0 scale-75 z-50 flex flex-col items-center">
       </div>
 
-      <!-- BOTTOM INTERACTION GUIDE (Game Active) -->
+      <!-- BOTTOM INTERACTION GUIDE (Game Active - MediaPipe Nose Tracking) -->
       <footer id="gameFooter" class="hidden w-full flex items-center justify-between pointer-events-auto px-2 py-1">
         <div class="bright-card px-3.5 py-1 rounded-full text-xs text-amber-200/95 flex items-center gap-2 border-amber-400/30">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span>🎮 เคลื่อนที่ไปยืนแตะคริสตัลค้างไว้ 1 วินาที เพื่อชาร์จพลังส่งคำตอบ</span>
+          <span>🎮 ขยับใบหน้า (กล้องตรวจจับตำแหน่งจมูก) ไปแตะคริสตัลค้างไว้ 1 วินาที เพื่อตอบคำถาม</span>
         </div>
         
         <div id="trackingStatusBadge" class="bright-card px-3 py-1 rounded-full text-xs text-cyan-300 flex items-center gap-1.5 border-cyan-400/30">
           <span>📷</span>
-          <span id="trackingStatusText">ระบบ AR ติดตามตำแหน่ง 60 FPS</span>
+          <span id="trackingStatusText">Google MediaPipe AI (ตรวจจับจมูก)</span>
         </div>
       </footer>
       
@@ -511,14 +514,14 @@
         <!-- Calibration Visual Box -->
         <div class="w-full max-w-xl bg-slate-900/90 border-2 border-cyan-400/60 rounded-2xl p-5 text-center flex flex-col items-center shadow-xl my-auto">
           <div class="w-16 h-16 rounded-full bg-cyan-950 border-2 border-cyan-400 flex items-center justify-center mb-3 text-3xl text-cyan-300 shadow">
-            📹
+            👃
           </div>
           <h3 class="font-semibold text-lg md:text-xl text-white mb-1.5 flex items-center justify-center gap-2">
-            <span>🧍</span>
-            <span>ยืนในตำแหน่งที่เห็นร่างกายชัดเจน</span>
+            <span>✨</span>
+            <span>ยืนในตำแหน่งที่เห็นใบหน้าและจมูกชัดเจน</span>
           </h3>
           <p class="text-xs md:text-sm text-slate-300 mb-5 leading-relaxed">
-            ระบบจะตรวจจับการเคลื่อนไหวของศีรษะและลำตัวของผู้เล่นแต่ละคน<br>
+            ระบบ Google MediaPipe AI จะตรวจจับตำแหน่ง <b>"จมูกและใบหน้า"</b> ของผู้เล่นแต่ละคนเพื่อควบคุมตัวละคร<br>
             <span id="cameraPlayerGuideText" class="text-amber-300 font-medium">ยืนประจำตำแหน่งตามจำนวนผู้เล่นที่เลือก</span>
           </p>
 
@@ -533,7 +536,7 @@
 
         <div class="text-xs text-slate-400 flex items-center gap-2">
           <span>💡</span>
-          <span>สามารถขยับร่างกายเพื่อทดสอบการลอยของตัวละครบนหน้าจอได้ทันที</span>
+          <span>ขยับใบหน้า ซ้าย-ขวา-ก้ม-เงย เพื่อทดสอบการเคลื่อนที่ของตัวละครผู้กล้าบนหน้าจอได้ทันที</span>
         </div>
       </div>
 
@@ -1775,10 +1778,138 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
 
     /**
      * =========================================================================
-     * WEBCAM & MULTI-PLAYER CV MOTION TRACKER
+     * GOOGLE MEDIAPIPE FACEMESH: NOSE & FACE TRACKING (1-3 PLAYERS)
      * =========================================================================
      */
+    let faceMesh = null;
+    let isMediaPipeActive = false;
+    let lastMediaPipeFrameTime = 0;
+    let isProcessingFrame = false;
     let prevProcImageData = null;
+
+    function initMediaPipeFaceMesh() {
+      if (typeof FaceMesh === 'undefined') {
+        console.warn('MediaPipe FaceMesh script loading or offline, fallback to optical motion tracker');
+        return;
+      }
+
+      if (faceMesh) return;
+
+      try {
+        faceMesh = new FaceMesh({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+        });
+
+        faceMesh.setOptions({
+          maxNumFaces: 3, // Support 1-3 players simultaneously!
+          refineLandmarks: true,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+
+        faceMesh.onResults(onFaceMeshResults);
+        isMediaPipeActive = true;
+        console.log('✅ Google MediaPipe FaceMesh initialized successfully (Tracking Nose Landmark 1)!');
+      } catch (err) {
+        console.warn('MediaPipe initialization notice:', err);
+      }
+    }
+
+    function onFaceMeshResults(results) {
+      isProcessingFrame = false;
+      if (!results || !results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+        return;
+      }
+
+      const detectedFaces = results.multiFaceLandmarks;
+      const canvasW = gameCanvas.width;
+      const canvasH = gameCanvas.height;
+
+      // Extract nose tip landmark (Landmark 1 is Nose Tip, Landmark 4 is Nose Bridge)
+      // Note: Video is mirrored (1 - x) so player moving right in mirror moves right on screen!
+      const noseList = detectedFaces.map(face => {
+        const nose = face[1] || face[4] || face[0]; // Landmark 1 = Nose Tip
+        return {
+          rawX: 1 - nose.x, // Mirrored X (0..1)
+          rawY: nose.y,     // Y (0..1)
+          screenX: (1 - nose.x) * canvasW,
+          screenY: nose.y * canvasH
+        };
+      });
+
+      // Sort detected faces from Left to Right (screenX ascending)
+      noseList.sort((a, b) => a.screenX - b.screenX);
+
+      if (playerCount === 1) {
+        // 1 Player: Map to Player 1 with smooth amplified movement curve
+        if (noseList.length > 0 && players[0] && !players[0].isDragging) {
+          const p = players[0];
+          const nose = noseList[0];
+          
+          const deltaX = (nose.rawX - 0.5) * 2.4;
+          const deltaY = (nose.rawY - 0.45) * 2.4;
+
+          const targetX = (0.5 + deltaX) * canvasW;
+          const targetY = (0.65 + deltaY) * canvasH;
+
+          p.targetX = Math.max(p.radius, Math.min(canvasW - p.radius, targetX));
+          p.targetY = Math.max(canvasH * 0.32, Math.min(canvasH - p.radius - 12, targetY));
+        }
+      } else if (playerCount === 2) {
+        // 2 Players: Left detected nose -> Player 1 (Sky Blue), Right detected nose -> Player 2 (Emerald Green)
+        if (noseList.length >= 2) {
+          [0, 1].forEach(idx => {
+            const p = players[idx];
+            const nose = noseList[idx];
+            if (p && !p.isDragging && nose) {
+              const baseNormX = idx === 0 ? 0.30 : 0.70;
+              const deltaX = (nose.rawX - baseNormX) * 2.0;
+              const deltaY = (nose.rawY - 0.48) * 2.2;
+
+              const targetX = (baseNormX + deltaX) * canvasW;
+              const targetY = (0.68 + deltaY) * canvasH;
+
+              p.targetX = Math.max(p.radius, Math.min(canvasW - p.radius, targetX));
+              p.targetY = Math.max(canvasH * 0.32, Math.min(canvasH - p.radius - 12, targetY));
+            }
+          });
+        } else if (noseList.length === 1) {
+          // Only 1 face in frame: dynamically assign to P1 if left, P2 if right
+          const nose = noseList[0];
+          const isLeft = nose.rawX < 0.5;
+          const p = isLeft ? players[0] : players[1];
+          if (p && !p.isDragging) {
+            const baseNormX = isLeft ? 0.30 : 0.70;
+            const deltaX = (nose.rawX - baseNormX) * 2.0;
+            const deltaY = (nose.rawY - 0.48) * 2.2;
+
+            p.targetX = Math.max(p.radius, Math.min(canvasW - p.radius, (baseNormX + deltaX) * canvasW));
+            p.targetY = Math.max(canvasH * 0.32, Math.min(canvasH - p.radius - 12, (0.68 + deltaY) * canvasH));
+          }
+        }
+      } else if (playerCount === 3) {
+        // 3 Players: Left -> P1, Middle -> P2, Right -> P3
+        noseList.slice(0, 3).forEach((nose, idx) => {
+          const p = players[idx];
+          if (p && !p.isDragging) {
+            const baseNormX = (idx + 1) / 4; // 0.25, 0.50, 0.75
+            const deltaX = (nose.rawX - baseNormX) * 1.8;
+            const deltaY = (nose.rawY - 0.48) * 2.2;
+
+            const targetX = (baseNormX + deltaX) * canvasW;
+            const targetY = (0.68 + deltaY) * canvasH;
+
+            p.targetX = Math.max(p.radius, Math.min(canvasW - p.radius, targetX));
+            p.targetY = Math.max(canvasH * 0.32, Math.min(canvasH - p.radius - 12, targetY));
+          }
+        });
+      }
+
+      const statusEl = document.getElementById('trackingStatusText');
+      if (statusEl) {
+        statusEl.innerText = `MediaPipe ตรวจจับจมูก (${detectedFaces.length} ใบหน้า)`;
+      }
+    }
 
     async function setupWebcam() {
       try {
@@ -1793,11 +1924,13 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
         webcamVideo.srcObject = stream;
         await webcamVideo.play();
         isWebcamReady = true;
+
+        initMediaPipeFaceMesh();
         document.getElementById('trackingStatusText').innerText = `กล้องพร้อมใช้งาน (${playerCount} ผู้เล่น)`;
       } catch (err) {
         console.warn('Webcam permission notice:', err);
         isWebcamReady = false;
-        document.getElementById('trackingStatusText').innerText = 'โหมดจำลอง (ใช้เมาส์/ทัช ลากตัวละคร)';
+        document.getElementById('trackingStatusText').innerText = 'โหมดจำลอง (ใช้เมาส์/ทัช/คีย์บอร์ด บังคับตัวละคร)';
       }
     }
 
@@ -1849,6 +1982,18 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
     function processCameraTracking() {
       if (!isWebcamReady || webcamVideo.readyState !== 4) return;
 
+      // 1. If MediaPipe is active, feed webcam frame to FaceMesh
+      if (faceMesh && !isProcessingFrame) {
+        const now = performance.now();
+        // Send frame (throttled at ~30 FPS for FaceMesh AI while canvas renders at 60 FPS)
+        if (now - lastMediaPipeFrameTime > 30) {
+          lastMediaPipeFrameTime = now;
+          isProcessingFrame = true;
+          faceMesh.send({ image: webcamVideo }).catch(() => { isProcessingFrame = false; });
+        }
+      }
+
+      // 2. Optical Motion Tracking Fallback (if MediaPipe is loading)
       const pW = procCanvas.width;
       const pH = procCanvas.height;
 
@@ -1865,43 +2010,46 @@ CREATE POLICY "Allow public delete" ON game_scores FOR DELETE USING (true);</pre
         return;
       }
 
-      const zoneWidth = pW / playerCount;
-      const canvasW = gameCanvas.width;
-      const canvasH = gameCanvas.height;
+      // If MediaPipe is not yet active, run motion fallback
+      if (!faceMesh) {
+        const zoneWidth = pW / playerCount;
+        const canvasW = gameCanvas.width;
+        const canvasH = gameCanvas.height;
 
-      for (let i = 0; i < playerCount; i++) {
-        const startX = Math.floor(i * zoneWidth);
-        const endX = Math.floor((i + 1) * zoneWidth);
+        for (let i = 0; i < playerCount; i++) {
+          const startX = Math.floor(i * zoneWidth);
+          const endX = Math.floor((i + 1) * zoneWidth);
 
-        let sumX = 0;
-        let sumY = 0;
-        let motionPixels = 0;
+          let sumX = 0;
+          let sumY = 0;
+          let motionPixels = 0;
 
-        for (let y = 10; y < pH * 0.85; y += 2) {
-          for (let x = startX; x < endX; x += 2) {
-            const idx = (y * pW + x) * 4;
-            const diffR = Math.abs(data[idx] - prevProcImageData[idx]);
-            const diffG = Math.abs(data[idx + 1] - prevProcImageData[idx + 1]);
-            const diffB = Math.abs(data[idx + 2] - prevProcImageData[idx + 2]);
-            const motion = (diffR + diffG + diffB) / 3;
+          for (let y = 10; y < pH * 0.85; y += 2) {
+            for (let x = startX; x < endX; x += 2) {
+              const idx = (y * pW + x) * 4;
+              const diffR = Math.abs(data[idx] - prevProcImageData[idx]);
+              const diffG = Math.abs(data[idx + 1] - prevProcImageData[idx + 1]);
+              const diffB = Math.abs(data[idx + 2] - prevProcImageData[idx + 2]);
+              const motion = (diffR + diffG + diffB) / 3;
 
-            if (motion > 24) {
-              sumX += x;
-              sumY += y;
-              motionPixels++;
+              if (motion > 24) {
+                sumX += x;
+                sumY += y;
+                motionPixels++;
+              }
             }
           }
-        }
 
-        if (motionPixels > 15) {
-          const rawCenterX = sumX / motionPixels;
-          const rawCenterY = sumY / motionPixels;
+          if (motionPixels > 15 && players[i] && !players[i].isDragging) {
+            const rawCenterX = sumX / motionPixels;
+            const rawCenterY = sumY / motionPixels;
 
-          const normX = rawCenterX / pW;
-          const normY = rawCenterY / pH;
+            const normX = rawCenterX / pW;
+            const normY = rawCenterY / pH;
 
-          players[i].targetX = normX * canvasW;
-          players[i].targetY = Math.min(canvasH * 0.88, Math.max(canvasH * 0.35, normY * canvasH * 1.15));
+            players[i].targetX = normX * canvasW;
+            players[i].targetY = Math.min(canvasH * 0.88, Math.max(canvasH * 0.32, normY * canvasH * 1.15));
+          }
         }
       }
 
